@@ -1,0 +1,8 @@
+pandas
+numpy
+duckdb
+streamlit
+plotly
+pyarrow
+python-dotenv
+pytest

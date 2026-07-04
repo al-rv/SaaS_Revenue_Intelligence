@@ -1,0 +1,12 @@
+[project]
+name = "saas-revenue-intelligence"
+version = "0.1.0"
+description = "Production-style SaaS revenue analytics project using Python, SQL, DuckDB, and Streamlit."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
