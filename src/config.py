@@ -24,6 +24,7 @@ DUCKDB_PATH = Path(os.getenv("DUCKDB_PATH", PROCESSED_DATA_DIR / "saas_revenue_i
 if not DUCKDB_PATH.is_absolute():
     DUCKDB_PATH = PROJECT_ROOT / DUCKDB_PATH
 
+KAGGLE_DATASET_SLUG = "rivalytics/saas-subscription-and-churn-analytics-dataset"
 MIN_PYTHON_VERSION = (3, 11)
 
 REQUIRED_DIRECTORIES = (
