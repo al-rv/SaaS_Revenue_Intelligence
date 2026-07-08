@@ -38,9 +38,9 @@ REQUIRED_DIRECTORIES = (
 
 RAW_TABLE_FILES = {
     "accounts": "ravenstack_accounts.csv",
-    "subscriptions": "ravenstack_subsciptions.csv",
+    "subscriptions": "ravenstack_subscriptions.csv",
     "feature_usage": "ravenstack_feature_usage.csv",
-    "support_tickets": "ravenstacck_support_tickets.csv",
+    "support_tickets": "ravenstack_support_tickets.csv",
     "churn_events": "ravenstack_churn_events.csv"
 }
 
