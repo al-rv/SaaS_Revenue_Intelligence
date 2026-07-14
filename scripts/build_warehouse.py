@@ -51,6 +51,30 @@ def main() -> None:
     for label, value in zip(labels, counts, strict=True):
         print(f' - {label}: {value}')
         
+    with get_connection() as conn:
+        spine_exists = conn.execute(
+            """
+            SELECT COUNT(*)
+            FROM information_schema.tables
+            WHERE table_schema = 'intermediate'
+              AND table_name = 'int_account_month_spine'
+            """
+        ).fetchone()
+        if spine_exists and spine_exists[0] == 1:
+            spine_count = conn.execute(
+                "SELECT COUNT(*) FROM intermediate.int_account_month_spine"
+            ).fetchone()
+            account_count = conn.execute(
+                "SELECT COUNT(DISTINCT account_id) FROM intermediate.int_account_month_spine"
+            ).fetchone()
+            month_count = conn.execute(
+                "SELECT COUNT(DISTINCT month_start) FROM intermediate.int_account_month_spine"
+            ).fetchone()
+            print("Account-month spine:")
+            print(f" - rows: {spine_count[0]}")
+            print(f" - accounts: {account_count[0]}")
+            print(f" - months: {month_count[0]}")
+        
     print('Warehouse build completed.')
     
 if __name__ == "__main__":
