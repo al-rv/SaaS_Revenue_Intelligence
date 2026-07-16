@@ -56,6 +56,44 @@ REQUIRED_PACKAGES = (
     "pytest",
 )
 
+DASHBOARD_EXPORTS: dict[str, str] = {
+    "executive_monthly.parquet": "SELECT * FROM marts.mart_executive_monthly ORDER BY month_start",
+    "mrr_movement_monthly.parquet": (
+        "SELECT * FROM marts.fct_mrr_movement_monthly ORDER BY month_start"
+    ),
+    "cohort_retention.parquet": (
+        "SELECT * FROM marts.fct_cohort_retention "
+        "ORDER BY cohort_month, month_number"
+    ),
+    "churn_drivers.parquet": (
+        "SELECT * FROM marts.mart_churn_drivers ORDER BY month_start, account_id"
+    ),
+    "support_usage_monthly.parquet": """
+        SELECT
+            COALESCE(s.account_id, u.account_id) AS account_id,
+            COALESCE(s.month_start, u.month_start) AS month_start,
+            COALESCE(s.ticket_count, 0) AS ticket_count,
+            COALESCE(s.high_priority_ticket_count, 0) AS high_priority_ticket_count,
+            COALESCE(s.escalated_ticket_count, 0) AS escalated_ticket_count,
+            s.avg_resolution_hours,
+            COALESCE(s.sla_breach_count, 0) AS sla_breach_count,
+            s.avg_satisfaction_score,
+            s.avg_first_response_minutes,
+            COALESCE(u.usage_event_count, 0) AS usage_event_count,
+            COALESCE(u.total_usage_count, 0) AS total_usage_count,
+            COALESCE(u.active_feature_count, 0) AS active_feature_count,
+            COALESCE(u.total_duration_minutes, 0) AS total_duration_minutes,
+            COALESCE(u.error_count, 0) AS error_count,
+            u.error_rate,
+            COALESCE(u.beta_feature_event_count, 0) AS beta_feature_event_count
+        FROM marts.fct_support_monthly AS s
+        FULL OUTER JOIN marts.fct_usage_monthly AS u
+            ON s.account_id = u.account_id
+            AND s.month_start = u.month_start
+        ORDER BY month_start, account_id
+    """,
+}
+
 def ensure_directories() -> None:
     """Create expected project direcories if they not exist"""
     for directory in REQUIRED_DIRECTORIES:
