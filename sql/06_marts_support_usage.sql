@@ -5,9 +5,9 @@ SELECT
     account_id, 
     DATE_TRUNC('month', CAST(submitted_at AS DATE)) AS month_start,
     COUNT(*) AS ticket_count,
-    COUNT(*) FILTER (WHERE priority IN ('high', 'urgent')) AS high_priority_ticket_count
+    COUNT(*) FILTER (WHERE priority IN ('high', 'urgent')) AS high_priority_ticket_count,
     COUNT(*) FILTER (WHERE escalation_flag IS TRUE) AS escalated_ticket_count,
-    AVG(resolution_time_hours) AS avg_resoultion_hours,
+    AVG(resolution_time_hours) AS avg_resolution_hours,
     COUNT(*) FILTER (WHERE resolution_time_hours > 48) AS sla_breach_count,
     AVG(satisfaction_score) AS avg_satisfaction_score, 
     AVG(first_response_time_minutes) AS avg_first_response_minutes
@@ -18,12 +18,12 @@ GROUP BY account_id, DATE_TRUNC('month', CAST(submitted_at AS DATE));
 CREATE OR REPLACE TABLE marts.fct_usage_monthly AS
 SELECT
     s.account_id,
-    DATE_TRUNC('monht', f.usage_date) AS month_start,
+    DATE_TRUNC('month', f.usage_date) AS month_start,
     COUNT(*) AS usage_event_count,
     SUM(COALESCE(f.usage_count, 0)) AS total_usage_count,
     COUNT(DISTINCT f.feature_name) AS active_feature_count,
     SUM(COALESCE(f.usage_duration_secs, 0)) / 60.0 AS total_duration_minutes,
-    SUM(COALESCE(f.error_count, 0)) AS error_count
+    SUM(COALESCE(f.error_count, 0)) AS error_count,
     CASE
         WHEN SUM(COALESCE(f.usage_count, 0)) > 0
         THEN CAST(SUM(COALESCE(f.error_count, 0)) AS DOUBLE) / SUM(COALESCE(f.usage_count, 0))

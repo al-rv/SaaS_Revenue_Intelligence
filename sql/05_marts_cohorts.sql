@@ -1,7 +1,7 @@
 -- Phase 7: cohort retenetion mart.
 
 CREATE OR REPLACE TABLE marts.fct_cohort_retention AS
-WITH cohrot_sizes AS (
+WITH cohort_sizes AS (
     SELECT
         signup_month AS cohort_month,
         COUNT(*) AS cohort_size
@@ -18,7 +18,7 @@ account_month_status AS (
         COALESCE(mrr.mrr, 0) AS mrr,
         CASE 
             WHEN spine.months_since_signup = 0 THEN TRUE
-            WHEN COALESCE(mrr.mrr, 0) > - THEN TRUE
+            WHEN COALESCE(mrr.mrr, 0) > 0 THEN TRUE
             ELSE FALSE
         END AS is_retained 
     FROM intermediate.int_account_month_spine AS spine
@@ -35,7 +35,7 @@ SELECT
     COUNT(*) FILTER (WHERE status.is_retained) AS retained_accounts,
     CAST(COUNT(*) FILTER (WHERE status.is_retained) AS DOUBLE) / NULLIF(sizes.cohort_size, 0) AS retention_rate
 FROM account_month_status AS status 
-INNER JOIN cohort_sized AS sizes
+INNER JOIN cohort_sizes AS sizes
 ON status.cohort_month = sizes.cohort_month
 GROUP BY 
     status.cohort_month,
