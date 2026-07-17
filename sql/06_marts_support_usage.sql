@@ -37,7 +37,15 @@ WHERE f.usage_date IS NOT NULL
 GROUP BY s.account_id, DATE_TRUNC('month', f.usage_date);
 
 CREATE OR REPLACE TABLE marts.mart_churn_drivers AS
-WITH base AS (
+WITH churn_reason_monthly AS (
+    SELECT
+        account_id, 
+        churn_month AS month_start, 
+        MIN(reason_code) AS churn_reason_code
+    FROM staging.stg_churn_events
+    GROUP BY account_id, churn_month
+),
+base AS (
     SELECT
         spine.account_id,
         spine.signup_month,
@@ -47,6 +55,7 @@ WITH base AS (
         spine.is_active_month,
         spine.is_churn_month,
         spine.months_until_churn,
+        churn.churn_reason_code,
         dim.industry,
         dim.country,
         dim.initial_plan_tier,
@@ -83,6 +92,9 @@ WITH base AS (
     LEFT JOIN marts.fct_usage_monthly AS usage
         ON spine.account_id = usage.account_id
         AND spine.month_start = usage.month_start
+    LEFT JOIN churn_reason_monthly AS churn
+        ON spine.account_id = churn.account_id
+        AND spine.month_start = churn.month_start
 )
 SELECT
     account_id,
@@ -93,6 +105,7 @@ SELECT
     is_active_month,
     is_churn_month,
     months_until_churn,
+    churn_reason_code,
     industry,
     country,
     initial_plan_tier,

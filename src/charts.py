@@ -184,3 +184,113 @@ def mrr_by_plan(frame: pd.DataFrame) -> go.Figure:
     figure.update_yaxes(title="MRR", tickformat=",.0f")
     figure.update_xaxes(title=None)
     return _apply_layout(figure, "MRR by initial plan tier")
+
+def cohort_heatmap(frame: pd.DataFrame) -> go.Figure:
+    pivot = frame.pivot(
+        index="cohort_month",
+        columns="month_number",
+        values="retention_rate",
+    ).sort_index(ascending=False)
+    labels = [pd.Timestamp(value).strftime("%b %Y") for value in pivot.index]
+    figure = go.Figure(
+        go.Heatmap(
+            z=pivot.values,
+            x=pivot.columns,
+            y=labels,
+            colorscale=[
+                [0.0, "#EFF6FF"],
+                [0.5, "#60A5FA"],
+                [1.0, "#1D4ED8"],
+            ],
+            zmin=0,
+            zmax=1,
+            colorbar=dict(title="Retention", tickformat=".0%"),
+            hovertemplate=(
+                "Cohort %{y}<br>Month %{x}<br>Retention %{z:.1%}<extra></extra>"
+            ),
+        )
+    )
+    figure.update_xaxes(title="Months since signup", dtick=1)
+    figure.update_yaxes(title="Signup cohort")
+    return _apply_layout(figure, "Cohort retention heatmap")
+
+
+def bar_chart(
+    frame: pd.DataFrame,
+    *,
+    x: str,
+    y: str,
+    title: str,
+    x_title: str | None = None,
+    y_title: str | None = None,
+    percent: bool = False,
+    color: str = BLUE,
+) -> go.Figure:
+    figure = px.bar(frame, x=x, y=y, color_discrete_sequence=[color])
+    figure.update_xaxes(title=x_title)
+    figure.update_yaxes(
+        title=y_title,
+        tickformat=".1%" if percent else ",.0f",
+    )
+    return _apply_layout(figure, title)
+
+
+def retention_curve(frame: pd.DataFrame, cohort_label: str) -> go.Figure:
+    figure = px.line(
+        frame,
+        x="month_number",
+        y="retention_rate",
+        markers=True,
+        color_discrete_sequence=[BLUE],
+    )
+    figure.update_traces(line=dict(width=3))
+    figure.update_xaxes(title="Months since signup", dtick=1)
+    figure.update_yaxes(title="Retention", tickformat=".0%", range=[0, 1.05])
+    return _apply_layout(figure, f"Retention curve — {cohort_label}")
+
+
+def adoption_heatmap(frame: pd.DataFrame) -> go.Figure:
+    pivot = frame.pivot(
+        index="initial_plan_tier",
+        columns="industry",
+        values="active_feature_count",
+    )
+    figure = go.Figure(
+        go.Heatmap(
+            z=pivot.values,
+            x=pivot.columns,
+            y=pivot.index,
+            colorscale="Blues",
+            colorbar=dict(title="Avg. features"),
+            hovertemplate=(
+                "Plan %{y}<br>Industry %{x}<br>Avg. features %{z:.1f}<extra></extra>"
+            ),
+        )
+    )
+    figure.update_xaxes(title="Industry")
+    figure.update_yaxes(title="Plan tier")
+    return _apply_layout(figure, "Feature adoption matrix")
+
+
+def scatter_chart(
+    frame: pd.DataFrame,
+    *,
+    x: str,
+    y: str,
+    title: str,
+    x_title: str,
+    y_title: str,
+    color: str | None = None,
+) -> go.Figure:
+    figure = px.scatter(
+        frame,
+        x=x,
+        y=y,
+        color=color,
+        color_discrete_sequence=[BLUE, RED, GREEN, AMBER],
+        opacity=0.7,
+    )
+    figure.update_xaxes(title=x_title)
+    figure.update_yaxes(title=y_title)
+    return _apply_layout(figure, title)
+
