@@ -33,7 +33,7 @@ st.markdown(
     """
     This analytics product converts five relational SaaS datasets into a trusted
     monthly reporting layer. Use the pages below to inspect executive health,
-    recurring-revenue movements, and segment performance.
+    recurring-revenue movements, retention, churn risk, and customer experience.
     """
 )
 
@@ -43,23 +43,48 @@ col2.metric("Account-month records", f"{len(drivers):,}")
 col3.metric("Reporting months", f"{executive['month_start'].nunique():,}")
 
 st.subheader("Explore")
-left, right = st.columns(2)
-with left:
-    st.markdown("### Executive Overview")
-    st.write("MRR, ARR, active accounts, churn, NRR, and time-series health.")
-    st.page_link(
+pages = [
+    (        
+        "Executive Overview",
+        "MRR, ARR, active accounts, churn, NRR, and time-series health.",
         "pages/1_Executive_Overview.py",
-        label="Open Executive Overview",
-        icon="📈",
-    )
-with right:
-    st.markdown("### Revenue Intelligence")
-    st.write("MRR waterfall, movement mix, plan contribution, and ARPU.")
-    st.page_link(
+        "📈",
+    ),
+    (
+        "Revenue Intelligence",
+        "MRR waterfall, movement mix, plan contribution, and ARPU.",
         "pages/2_Revenue_Intelligence.py",
-        label="Open Revenue Intelligence",
-        icon="💰",
-    )
+        "💰",
+    ),
+    (
+        "Cohort Retention",
+        "Cohort heatmap, signup volume, and retention curves.",
+        "pages/3_Cohort_Retention.py",
+        "🧭",
+    ),
+    (
+        "Churn Drivers",
+        "Segment churn, churn reasons, warning signals, and at-risk accounts.",
+        "pages/4_Churn_Drivers.py",
+        "⚠️",
+    ),
+    (
+        "Support and Usage",
+        "Service quality, feature adoption, product errors, and churn.",
+        "pages/5_Support_and_Usage.py",
+        "🛠️",
+    ),
+]
+for row_start in range(0, len(pages), 2):
+    columns = st.columns(2)
+    for column, (title, description, path, icon) in zip(
+        columns,
+        pages[row_start : row_start + 2],
+    ):
+        with column:
+            st.markdown(f"### {title}")
+            st.write(description)
+            st.page_link(path, label=f"Open {title}", icon=icon)
 
 with st.expander("Data and metric notes"):
     st.markdown(

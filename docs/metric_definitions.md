@@ -106,8 +106,82 @@ Notes:
 - New and reactivation MRR are excluded from NRR/GRR denominators by design.
 - Cohort retention remains planned for Phase 7.
 
+## Cohort, support, and usage marts (Phase 7)
+
+### `marts.fct_cohort_retention`
+
+**Grain:** one row per `cohort_month` × `month_number`
+
+| Field | Definition |
+|---|---|
+| `cohort_month` | Account signup month |
+| `month_number` | Months since signup |
+| `cohort_size` | Accounts that signed up in the cohort month |
+| `retained_accounts` | Accounts still retained at that month number |
+| `retention_rate` | `retained_accounts / cohort_size` |
+
+Retention rule:
+
+- Month 0 is always 100% (all signup accounts retained by definition).
+- Later months count an account as retained when `mrr > 0`.
+
+### `marts.fct_support_monthly`
+
+**Grain:** one row per account × month
+
+Includes ticket counts, high-priority and escalated tickets, average resolution hours, SLA breaches (`resolution_time_hours > 48`), and satisfaction.
+
+### `marts.fct_usage_monthly`
+
+**Grain:** one row per account × month
+
+Includes usage events, usage count, active features, duration minutes, error count, and error rate.
+
+### `marts.mart_churn_drivers`
+
+**Grain:** one row per account × month
+
+Joins spine + MRR + support + usage and adds:
+
+- `churns_next_month`
+- `next_month_churned_mrr`
+- `churn_reason_code` on the recorded churn month
+
+This table is the analysis layer for churn driver exploration and dashboards.
+
+## Dashboard diagnostic metrics
+
+### Segment next-month churn rate
+
+```text
+active account-months followed by churn / active account-months
+```
+
+This is a diagnostic comparison across plans and industries, not the executive
+monthly logo churn KPI.
+
+### At-risk account score
+
+The dashboard uses a transparent 100-point prioritization heuristic:
+
+- 35 points: usage declined at least 30% from the prior month
+- 25 points: one or more SLA breaches
+- 20 points: one or more high-priority tickets
+- 20 points: error rate above the latest-month median
+
+Risk bands are low (`0-24`), medium (`25-49`), and high (`50-100`). The score is
+not a causal model or a trained churn prediction.
+
+### SLA breach rate
+
+```text
+tickets resolved after 48 hours / all support tickets
+```
+
+
 ## Design principles
 
 - Metrics are computed from staging + spine tables, not directly from raw CSVs.
 - Month-level logic is centralized in the account-month spine.
-- Churn and activity flags in the spine are inputs to downstream marts, not final KPIs.
+- Revenue marts implement KPI definitions once and are reused by dashboards.
+- Support and usage are rolled up before joining so churn-driver grain stays unique.
