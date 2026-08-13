@@ -50,9 +50,9 @@ Core formulas live in [`docs/metric_definitions.md`](docs/metric_definitions.md)
 ## Live Dashboard
 
 **Checkout the live dashboard**
-```text
+
 https://saasrevenueintelligencedemo.streamlit.app/
-```
+
 
 ## Dashboard Screenshots
 
