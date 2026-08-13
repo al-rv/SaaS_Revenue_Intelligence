@@ -81,6 +81,51 @@ Source dataset: Rivalytics / RavenStack SaaS Subscription & Churn Analytics (syn
 - `is_reactivation`
 - `feedback_text`
 
+## Staging layer (`staging`)
+
+Typed and cleaned mirrors of raw tables:
+
+| Table | Notes |
+|---|---|
+| `stg_accounts` | lowercased industry, uppercased country, `signup_month` |
+| `stg_subscriptions` | typed dates and MRR; enterprise / annual flags |
+| `stg_feature_usage` | deduplicated on `usage_id` |
+| `stg_support_tickets` | typed timestamps and resolution hours |
+| `stg_churn_events` | typed churn date / month and reason code |
+
+## Intermediate layer (`intermediate`)
+
+| Table | Grain | Purpose |
+|---|---|---|
+| `int_calendar_months` | one row per month | shared calendar spine |
+| `int_first_churn_by_account` | one row per account | first observed churn |
+| `int_account_month_spine` | account × month | core reporting backbone |
+
+## Marts layer (`marts`)
+
+| Table | Grain | Purpose |
+|---|---|---|
+| `dim_account` | account | account attributes and tenure bucket |
+| `fct_account_monthly_mrr` | account × month | MRR and movement components |
+| `fct_mrr_movement_monthly` | month | company waterfall |
+| `mart_executive_monthly` | month | executive KPIs |
+| `fct_cohort_retention` | cohort × month number | retention curves |
+| `fct_support_monthly` | account × month | ticket rollups |
+| `fct_usage_monthly` | account × month | product-usage rollups |
+| `mart_churn_drivers` | account × month | joined analysis layer for dashboards |
+
+## Dashboard exports (`data/processed/`)
+
+| File | Source |
+|---|---|
+| `executive_monthly.parquet` | `marts.mart_executive_monthly` |
+| `mrr_movement_monthly.parquet` | `marts.fct_mrr_movement_monthly` |
+| `cohort_retention.parquet` | `marts.fct_cohort_retention` |
+| `churn_drivers.parquet` | `marts.mart_churn_drivers` |
+| `support_usage_monthly.parquet` | support ∪ usage monthly facts |
+
+Committed copies of these files also live in `data/demo/` for Streamlit Cloud.
+
 ## Validation queries
 
 ```sql

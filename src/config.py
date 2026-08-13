@@ -15,6 +15,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 DATA_DIR = Path(os.getenv("DATA_DIR", PROJECT_ROOT / 'data'))
 RAW_DATA_DIR = DATA_DIR / 'raw'
 PROCESSED_DATA_DIR = DATA_DIR / 'processed'
+DEMO_DATA_DIR = DATA_DIR / "demo"
 SAMPLE_DATA_DIR = DATA_DIR / 'sample'
 SQL_DIR = PROJECT_ROOT / 'sql'
 DOCS_DIR = PROJECT_ROOT / 'docs'
@@ -31,6 +32,7 @@ REQUIRED_DIRECTORIES = (
     DATA_DIR,
     RAW_DATA_DIR,
     PROCESSED_DATA_DIR,
+    DEMO_DATA_DIR,
     SAMPLE_DATA_DIR,
     SQL_DIR,
     DOCS_DIR,

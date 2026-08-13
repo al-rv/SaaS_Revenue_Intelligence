@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.config import PROCESSED_DATA_DIR
+from src.config import DEMO_DATA_DIR, PROCESSED_DATA_DIR
 
 
 @dataclass(frozen=True)
@@ -20,14 +20,24 @@ class DashboardFilters:
     countries: tuple[str, ...] = ()
 
 
+def resolve_dashboard_export(filename: str) -> Path:
+    """Prefer local processed exports; fall back to committed demo exports."""
+    processed = PROCESSED_DATA_DIR / filename
+    if processed.exists():
+        return processed
+
+    demo = DEMO_DATA_DIR / filename
+    if demo.exists():
+        return demo
+
+    raise FileNotFoundError(
+        f"Missing dashboard export: {filename}. "
+        "Run `make pipeline` locally, or ensure `data/demo/` is present for deployment."
+    )
+    
 def load_parquet(filename: str) -> pd.DataFrame:
     """Load a dashboard export and normalize its date columns."""
-    path = PROCESSED_DATA_DIR / filename
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Missing dashboard export: {path}. Run `make build` first."
-        )
-
+    path = resolve_dashboard_export(filename)
     frame = pd.read_parquet(path)
     for column in ("month_start", "cohort_month", "signup_month"):
         if column in frame.columns:
@@ -254,5 +264,5 @@ def latest_kpis(executive: pd.DataFrame) -> dict[str, float | int | pd.Timestamp
 
 
 def export_path(filename: str) -> Path:
-    """Return the path to a dashboard export."""
-    return PROCESSED_DATA_DIR / filename
+    """Return the resolved path to a dashboard export."""
+    return resolve_dashboard_export(filename)

@@ -27,6 +27,9 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+# Committed demo exports power Streamlit Community Cloud 
+!data/demo/
+!data/demo/*.parquet
 *.duckdb
 *.duckdb.wal
 *.db
