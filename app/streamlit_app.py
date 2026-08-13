@@ -24,7 +24,7 @@ try:
     drivers = load_parquet("churn_drivers.parquet")
 except FileNotFoundError as exc:
     st.error(str(exc))
-    st.code("make build", language="bash")
+    st.code("make pipeline\nmake sync-demo", language="bash")
     st.stop()
 
 latest_month = executive["month_start"].max()

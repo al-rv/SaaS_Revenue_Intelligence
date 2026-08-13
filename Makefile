@@ -21,6 +21,9 @@ build:
 pipeline:
 	uv run python -m src.pipeline
 
+sync-demo:
+	uv run python scripts/sync_demo_exports.py
+
 app:
 	uv run streamlit run app/streamlit_app.py
 
