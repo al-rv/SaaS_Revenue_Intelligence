@@ -46,6 +46,14 @@ Core formulas live in [`docs/metric_definitions.md`](docs/metric_definitions.md)
 | **ARPU** | Total MRR ÷ active accounts |
 | **Cohort retention** | Retained accounts ÷ signup-cohort size |
 
+
+## Live Dashboard
+
+**Checkout the live dashboard**
+```text
+https://saasrevenueintelligencedemo.streamlit.app/
+```
+
 ## Dashboard Screenshots
 
 ![Home](assets/screenshots/01_home.png)
